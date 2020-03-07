@@ -2,10 +2,7 @@
 
 import ovh
 import os
-import pprint
 from configparser import RawConfigParser, NoSectionError, NoOptionError
-
-pp = pprint.PrettyPrinter(indent=4)
 
 CONFIG_PATH = [
     '/etc/ovh.conf',
@@ -40,7 +37,7 @@ class ConfigMgr(object):
         # 2/ try from specified section/enpoint
         try:
             return self.config.get(section, name)
-        except (NoSectionError, NoOptionError):
+        except NoOptionError:
             pass
 
         # not found, sorry
@@ -54,8 +51,7 @@ class ConfigMgr(object):
 config = ConfigMgr()
 
 
-# noinspection PyPep8Naming,
-# noinspection PyProtectedMember, PyShadowingBuiltins,PyArgumentList
+# noinspection PyProtectedMember,PyShadowingBuiltins,PyArgumentList,PyPep8Naming
 class MyCloud(ovh.Client):
     """
     A surcharge of the OVH API client,
@@ -63,12 +59,16 @@ class MyCloud(ovh.Client):
     Every API use '${endpoint}/cloud/{project_name}/...' URI.
     """
     def __init__(self, project=None, serviceName=None, sshKeyId=None,
-                 region=None, flavor=None, image=None,
+                 region=None, flavor=None, image=None, config_file=None,
                  *args, **kwargs):
         """
         Constructs the ovh.Client object with other attributes
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, config_file=config_file, **kwargs)
+
+        # Load a custom config file if requested
+        if config_file is not None:
+            config.read(config_file)
 
         self._projectname = project or config.get('default', 'project')
         self._serviceName = \
@@ -313,7 +313,7 @@ class MyCloud(ovh.Client):
 
     def detach_volume(self, instance_name, volume_name):
         """
-        Detach volume of name /volume_name/ from instance of name /instance_name/
+        Detach volume of /volume_name/ from instance of /instance_name/
         """
         instance_id = self.get_instance(instance_name)['id']
         volume_id = self.get_volume(volume_name)['id']
