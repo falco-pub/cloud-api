@@ -19,7 +19,7 @@ class TestsOVH(unittest.TestCase):
 
     def test___init__(self):
         self.assertIsNotNone(cloudovh.CONFIG_PATH)
-        for s in (self.ovh._projectname,
+        for s in (self.ovh._project,
                   self.ovh._sshKeyId,
                   self.ovh._serviceName):
             self.assertIsInstance(s, str)

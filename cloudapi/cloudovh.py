@@ -123,18 +123,38 @@ class MyCloud(ovh.Client):
         if config_file is not None:
             config.read(config_file)
 
-        self._projectname = project or config.get('default', 'project')
-        self._serviceName = \
-            serviceName or config.get(self._projectname, 'serviceName')
+        # Finds the project name and id, given the args or the config file
+        _projects = projects(config_file)
+        if serviceName:
+            # Search for servicename (project id) in the list of projects
+            for k,v in _projects.items():
+                if v['project_id'] == serviceName:
+                    project = k
+                    break
+            if not project:
+                raise LookupError(f"Project not found, serviceName: {serviceName}")
+            self._project = project
+        else:
+            # Guess servicename from the given project name
+            self._project = project or config.get('default', 'project')
+            try:
+                serviceName = _projects[self._project]['project_id']
+            except KeyError:
+                raise KeyError(f"Project not found, name: {self._project}")
+
+        if not config.config.has_section(self._project):
+            raise LookupError(f"Section not in config file: {self._project}")
+
+        self._serviceName = serviceName
         self._projectUri = '/cloud/project/' + self._serviceName + '/'
         self._sshKeyId = \
-            sshKeyId or config.get(self._projectname, 'sshKeyId')
+            sshKeyId or config.get(self._project, 'sshKeyId')
         self._default_region = \
-            region or config.get(self._projectname, 'default_region')
+            region or config.get(self._project, 'default_region')
         self._default_flavor = \
-            flavor or config.get(self._projectname, 'default_flavor')
+            flavor or config.get(self._project, 'default_flavor')
         self._default_image = \
-            image or config.get(self._projectname, 'default_image')
+            image or config.get(self._project, 'default_image')
 
     def _get(self, method, *args, **kwargs):
         """GET ${endpoint}/cloud/{project_name}/${method}"""
@@ -290,7 +310,7 @@ class MyCloud(ovh.Client):
         return result
 
     def new_volume(self, region=None, size=None, type='classic', name=None):
-        region = region or config.get(self._projectname, 'default_region')
+        region = region or self._default_region
         """Creates a new volume"""
         if not isinstance(size, int):
             raise TypeError("'size' should be integer!")
