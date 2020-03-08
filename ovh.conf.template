@@ -12,8 +12,7 @@ application_secret=@@application_secret@@
 consumer_key=@@consumer_key@@
 
 [cloudovh1]
-serviceName = __serviceName (horizon)__
 sshKeyId = @@sshKeyId@@
 default_region = GRA1
-default_flavor = vps-ssd-1
+default_flavor = s1-2
 default_image = CoreOS Stable
