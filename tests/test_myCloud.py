@@ -2,14 +2,15 @@ import unittest
 
 from cloudapi import cloudovh
 
+class TestMethods(unittest.TestCase):
+    @classmethod
+    def isNotEmptyList(cls, l):
+        unittest.TestCase().assertIsInstance(l, list)
+        unittest.TestCase().assertTrue(l)
 
 class TestsOVH(unittest.TestCase):
     def setUp(self):
         self.ovh = cloudovh.MyCloud(config_file="../ovh.conf")
-
-    def isNotEmptyList(self, l):
-        self.assertIsInstance(l, list)
-        self.assertTrue(l)
 
     def test___init__(self):
         self.assertIsNotNone(cloudovh.CONFIG_PATH)
@@ -25,10 +26,10 @@ class TestsOVH(unittest.TestCase):
         self.assertIsInstance(r[0], dict)
 
     def test_list_instances(self):
-        self.isNotEmptyList(self.ovh.list_instances())
+        TestMethods.isNotEmptyList(self.ovh.list_instances())
 
     def test_list_volumes(self):
-        self.isNotEmptyList(self.ovh.list_volumes())
+        TestMethods.isNotEmptyList(self.ovh.list_volumes())
 
     def test_filter(self):
         flavor = self.ovh._default_flavor
