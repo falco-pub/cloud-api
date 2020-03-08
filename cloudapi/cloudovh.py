@@ -121,6 +121,9 @@ class MyCloud(ovh.Client):
 
             dictlist = f(self, *args, **kwargs)
 
+            if not dictlist:
+                return dictlist
+
             def _filter(input_dict, ref_dict):
                 for k, v, in ref_dict.items():
                     if not (v is None) and (input_dict[k] != v):
