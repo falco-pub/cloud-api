@@ -51,6 +51,11 @@ class ConfigMgr(object):
 config = ConfigMgr()
 
 
+def projects(config_file=None, *args, **kwargs):
+    connect = ovh.Client(config_file=config_file, *args, **kwargs)
+    return connect.get('/cloud/project')
+
+
 # noinspection PyProtectedMember,PyShadowingBuiltins,PyArgumentList,PyPep8Naming
 class MyCloud(ovh.Client):
     """

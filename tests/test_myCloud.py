@@ -8,6 +8,11 @@ class TestMethods(unittest.TestCase):
         unittest.TestCase().assertIsInstance(l, list)
         unittest.TestCase().assertTrue(l)
 
+class TestsGeneric(unittest.TestCase):
+    def test_projects(self):
+        projects = cloudovh.projects(config_file="../ovh.conf")
+        TestMethods.isNotEmptyList(projects)
+
 class TestsOVH(unittest.TestCase):
     def setUp(self):
         self.ovh = cloudovh.MyCloud(config_file="../ovh.conf")
