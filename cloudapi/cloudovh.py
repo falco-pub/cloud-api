@@ -2,7 +2,7 @@
 
 import ovh
 import os
-from configparser import RawConfigParser, NoSectionError, NoOptionError
+from configparser import RawConfigParser, NoOptionError
 
 CONFIG_PATH = [
     '/etc/ovh.conf',
@@ -49,6 +49,50 @@ class ConfigMgr(object):
 
 
 config = ConfigMgr()
+
+
+# noinspection PyMethodParameters
+def indict_filter(f):
+    """
+    This is a decorator
+    The new function will have a special treatment of
+    the 'filter' argument, which has to be a dict()
+    The result of the parent function will be compared
+    to the 'filter' content.
+    The new function only returns the list containing the dicts that
+    match the criteria given by 'filter'
+    """
+
+    # noinspection PyCallingNonCallable,PyShadowingBuiltins
+    def inner(self, *args, **kwargs):
+
+        # 'filter' is None if 'filter' not in kwargs
+        filter = kwargs.get('filter')
+        if 'filter' in kwargs:
+            del kwargs['filter']
+
+        dictlist = f(self, *args, **kwargs)
+
+        if not dictlist:
+            return dictlist
+
+        def _filter(input_dict, ref_dict):
+            for k, v, in ref_dict.items():
+                if not (v is None) and (input_dict[k] != v):
+                    return False
+            return True
+
+        if filter:
+            r = [x for x in dictlist if _filter(x, filter)]
+        else:
+            r = dictlist
+        if r:
+            return r
+        else:
+            raise LookupError(
+                f"Dict not found with the {filter} filter.")
+
+    return inner
 
 
 # noinspection PyProtectedMember,PyShadowingBuiltins,PyArgumentList,PyPep8Naming
@@ -98,49 +142,6 @@ class MyCloud(ovh.Client):
     def _delete(self, method, *args, **kwargs):
         """DELETE ${endpoint}/cloud/{project_name}/${method}"""
         return super().delete(self._projectUri + method, *args, **kwargs)
-
-    # noinspection PyMethodParameters
-    def indict_filter(f):
-        """
-        This is a decorator
-        The new function will have a special treatment of
-        the 'filter' argument, which has to be a dict()
-        The result of the parent function will be compared
-        to the 'filter' content.
-        The new function only returns the list containing the dicts that
-        match the criteria given by 'filter'
-        """
-
-        # noinspection PyCallingNonCallable
-        def inner(self, *args, **kwargs):
-
-            # 'filter' is None if 'filter' not in kwargs
-            filter = kwargs.get('filter')
-            if 'filter' in kwargs:
-                del kwargs['filter']
-
-            dictlist = f(self, *args, **kwargs)
-
-            if not dictlist:
-                return dictlist
-
-            def _filter(input_dict, ref_dict):
-                for k, v, in ref_dict.items():
-                    if not (v is None) and (input_dict[k] != v):
-                        return False
-                return True
-
-            if filter:
-                r = [x for x in dictlist if _filter(x, filter)]
-            else:
-                r = dictlist
-            if r:
-                return r
-            else:
-                raise LookupError(
-                    f"Dict not found with the {filter} filter.")
-
-        return inner
 
     @indict_filter
     def f_get(self, method='instance', *args, **kwargs):
