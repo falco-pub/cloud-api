@@ -11,7 +11,7 @@ class TestMethods(unittest.TestCase):
 class TestsGeneric(unittest.TestCase):
     def test_projects(self):
         projects = cloudovh.projects(config_file="../ovh.conf")
-        TestMethods.isNotEmptyList(projects)
+        self.assertTrue(projects)
 
 class TestsOVH(unittest.TestCase):
     def setUp(self):

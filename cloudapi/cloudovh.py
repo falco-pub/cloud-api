@@ -53,7 +53,11 @@ config = ConfigMgr()
 
 def projects(config_file=None, *args, **kwargs):
     connect = ovh.Client(config_file=config_file, *args, **kwargs)
-    return connect.get('/cloud/project')
+    result = dict()
+    for p in connect.get('/cloud/project'):
+        project = connect.get(f'/cloud/project/{p}')
+        result[project['description']] = project
+    return result
 
 
 # noinspection PyMethodParameters
