@@ -129,6 +129,6 @@ dmypy.json
 .pyre/
 
 .idea
-ovh.conf
+*.conf
 .envrc
 .direnv
