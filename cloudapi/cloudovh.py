@@ -127,7 +127,7 @@ class MyCloud(ovh.Client):
         _projects = projects(config_file)
         if serviceName:
             # Search for servicename (project id) in the list of projects
-            for k,v in _projects.items():
+            for k, v in _projects.items():
                 if v['project_id'] == serviceName:
                     project = k
                     break

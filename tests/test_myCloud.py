@@ -2,16 +2,19 @@ import unittest
 
 from cloudapi import cloudovh
 
+
 class TestMethods(unittest.TestCase):
     @classmethod
     def isNotEmptyList(cls, l):
         unittest.TestCase().assertIsInstance(l, list)
         unittest.TestCase().assertTrue(l)
 
+
 class TestsGeneric(unittest.TestCase):
     def test_projects(self):
         projects = cloudovh.projects(config_file="../ovh.conf")
         self.assertTrue(projects)
+
 
 class TestsOVH(unittest.TestCase):
     def setUp(self):
